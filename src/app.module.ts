@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { WalletsModule } from './wallets/wallets.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       // Note: In a production environment, it's recommended to set synchronize to false
       synchronize: true,
     }),
+    WalletsModule,
   ],
   controllers: [],
   providers: [],
