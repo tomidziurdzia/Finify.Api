@@ -1,8 +1,9 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { CurrencyType, WalletType } from '../../shared/enums';
+import { Audit } from "src/shared/entities/audit.entity";
 
 @Entity('wallets')
-export class Wallet {
+export class Wallet extends Audit {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
