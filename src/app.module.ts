@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { WalletsModule } from './wallets/wallets.module';
 import { SharedModule } from './shared/shared.module';
 import { CategoriesModule } from './categories/categories.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CategoriesModule } from './categories/categories.module';
     WalletsModule,
     SharedModule,
     CategoriesModule,
+    TransactionsModule,
   ],
   controllers: [],
   providers: [],
