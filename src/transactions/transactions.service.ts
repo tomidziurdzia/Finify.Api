@@ -8,10 +8,11 @@ import {
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 import { TransactionImage } from './entities/transaction-image.entity';
+import e from 'express';
 
 @Injectable()
 export class TransactionsService {
@@ -23,6 +24,8 @@ export class TransactionsService {
 
     @InjectRepository(TransactionImage)
     private readonly transactionImageRepository: Repository<TransactionImage>,
+
+    private readonly datasource: DataSource,
   ) {}
 
   async create(createTransactionDto: CreateTransactionDto) {
@@ -76,21 +79,42 @@ export class TransactionsService {
   }
 
   async update(id: string, updateTransactionDto: UpdateTransactionDto) {
+    const { images, ...toUpdate } = updateTransactionDto;
+
     const transaction = await this.transactionRepository.preload({
-      id: id,
-      ...updateTransactionDto,
-      images: [],
+      id,
+      ...toUpdate,
     });
 
     if (!transaction) {
       throw new NotFoundException(`Transaction with id ${id} not found`);
     }
 
-    try {
-      await this.transactionRepository.save(transaction);
+    const queryRunner = this.datasource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-      return transaction;
+    try {
+      if (images) {
+        await queryRunner.manager.delete(TransactionImage, {
+          transaction: { id },
+        });
+
+        transaction.images = images.map((image) =>
+          this.transactionImageRepository.create({ url: image }),
+        );
+      }
+
+      await queryRunner.manager.save(transaction);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      console.log('Updated transaction:', transaction);
+
+      return this.findOne(id);
     } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       this.handleDBExceptions(error);
     }
   }
