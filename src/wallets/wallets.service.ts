@@ -47,8 +47,24 @@ export class WalletsService {
     return wallet;
   }
 
-  update(id: string, updateWalletDto: UpdateWalletDto) {
-    return `This action updates a #${id} wallet`;
+  async update(id: string, updateWalletDto: UpdateWalletDto) {
+    const wallet = await this.walletRepository.preload({
+      id: id,
+      ...updateWalletDto,
+    });
+
+    if(!wallet)
+    {
+      throw new NotFoundException(`Wallet with id ${id} not found`);
+    }
+
+    try {
+      await this.walletRepository.save(wallet);
+      return wallet;
+
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   async remove(id: string) {
