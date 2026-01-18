@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WalletsModule } from './wallets/wallets.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { WalletsModule } from './wallets/wallets.module';
       synchronize: true,
     }),
     WalletsModule,
+    SharedModule,
   ],
   controllers: [],
   providers: [],
