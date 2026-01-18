@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
+import { TransactionImage } from './entities/transaction-image.entity';
 
 @Injectable()
 export class TransactionsService {
@@ -19,13 +20,25 @@ export class TransactionsService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
+
+    @InjectRepository(TransactionImage)
+    private readonly transactionImageRepository: Repository<TransactionImage>,
   ) {}
 
   async create(createTransactionDto: CreateTransactionDto) {
     try {
-      const transaction =
-        this.transactionRepository.create(createTransactionDto);
-      return await this.transactionRepository.save(transaction);
+      const { images = [], ...transactionDetails } = createTransactionDto;
+
+      const transaction = this.transactionRepository.create({
+        ...transactionDetails,
+        images: images.map((image) =>
+          this.transactionImageRepository.create({ url: image }),
+        ),
+      });
+
+      await this.transactionRepository.save(transaction);
+
+      return { ...transaction, images };
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -33,6 +46,7 @@ export class TransactionsService {
 
   findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
+
     return this.transactionRepository.find({
       take: limit,
       skip: offset,
@@ -53,13 +67,16 @@ export class TransactionsService {
     const transaction = await this.transactionRepository.preload({
       id: id,
       ...updateTransactionDto,
+      images: [],
     });
 
     if (!transaction) {
       throw new NotFoundException(`Transaction with id ${id} not found`);
     }
+
     try {
       await this.transactionRepository.save(transaction);
+
       return transaction;
     } catch (error) {
       this.handleDBExceptions(error);

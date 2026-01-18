@@ -1,6 +1,7 @@
 import { Audit } from 'src/shared/entities/audit.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { TransactionType } from '../enums/transaction-type-enum';
+import { TransactionImage } from './transaction-image.entity';
 
 @Entity('transactions')
 export class Transaction extends Audit {
@@ -21,4 +22,11 @@ export class Transaction extends Audit {
     enum: TransactionType,
   })
   type: TransactionType;
+
+  @OneToMany(
+    () => TransactionImage,
+    (transactionImage) => transactionImage.transaction,
+    { cascade: true },
+  )
+  images?: TransactionImage[];
 }

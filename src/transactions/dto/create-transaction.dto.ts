@@ -1,8 +1,10 @@
 import {
+  IsArray,
   IsDate,
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
 } from 'class-validator';
@@ -26,4 +28,9 @@ export class CreateTransactionDto {
   @IsEnum(TransactionType)
   @IsNotEmpty()
   type: TransactionType;
+
+  @IsString({ each: true })
+  @IsArray()
+  @IsOptional()
+  images?: string[];
 }
