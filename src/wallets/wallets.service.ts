@@ -1,12 +1,15 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
+import { error } from 'console';
 
 @Injectable()
 export class WalletsService {
+
+  private readonly logger = new Logger(WalletsService.name);
   
   constructor(
     @InjectRepository(Wallet)
@@ -19,8 +22,7 @@ export class WalletsService {
       return await this.walletRepository.save(wallet);
       
     } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException('Failed to create wallet');
+      this.handleDBExceptions(error);
     }
   }
 
@@ -38,5 +40,14 @@ export class WalletsService {
 
   remove(id: number) {
     return `This action removes a #${id} wallet`;
+  }
+
+  private handleDBExceptions( error: any ){
+     if(error.code === "23505") {
+        throw new BadRequestException(error.detail);
+      }
+      
+      this.logger.error(error);
+      throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 }
