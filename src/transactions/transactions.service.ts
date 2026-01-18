@@ -44,23 +44,35 @@ export class TransactionsService {
     }
   }
 
-  findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
 
-    return this.transactionRepository.find({
+    const transactions = await this.transactionRepository.find({
       take: limit,
       skip: offset,
+      relations: { images: true },
     });
+
+    return transactions.map((transaction) => ({
+      ...transaction,
+      images: transaction.images.map((img) => img.url),
+    }));
   }
 
   async findOne(id: string) {
-    const transaction = await this.transactionRepository.findOneBy({ id });
+    const transaction = await this.transactionRepository.findOne({
+      where: { id },
+      relations: { images: true },
+    });
 
     if (!transaction) {
       throw new NotFoundException(`Transaction with id ${id} not found`);
     }
 
-    return transaction;
+    return {
+      ...transaction,
+      images: transaction.images.map((img) => img.url),
+    };
   }
 
   async update(id: string, updateTransactionDto: UpdateTransactionDto) {
@@ -84,7 +96,11 @@ export class TransactionsService {
   }
 
   async remove(id: string) {
-    const transaction = await this.findOne(id);
+    const transaction = await this.transactionRepository.findOneBy({ id });
+
+    if (!transaction) {
+      throw new NotFoundException(`Transaction with id ${id} not found`);
+    }
 
     await this.transactionRepository.remove(transaction);
   }

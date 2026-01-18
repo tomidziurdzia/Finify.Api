@@ -26,7 +26,7 @@ export class Transaction extends Audit {
   @OneToMany(
     () => TransactionImage,
     (transactionImage) => transactionImage.transaction,
-    { cascade: true },
+    { cascade: true, eager: true },
   )
-  images?: TransactionImage[];
+  images: TransactionImage[];
 }
