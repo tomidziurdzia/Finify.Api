@@ -15,7 +15,9 @@ export class TransactionImage {
   @Column('text')
   url: string;
 
-  @ManyToOne(() => Transaction, (transaction) => transaction.images)
+  @ManyToOne(() => Transaction, (transaction) => transaction.images, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'transaction_id' })
   transaction: Transaction;
 }

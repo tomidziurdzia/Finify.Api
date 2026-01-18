@@ -109,8 +109,6 @@ export class TransactionsService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
 
-      console.log('Updated transaction:', transaction);
-
       return this.findOne(id);
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -138,5 +136,16 @@ export class TransactionsService {
     throw new InternalServerErrorException(
       'Unexpected error, check server logs',
     );
+  }
+
+  // For testing purposes only
+  async deleteAllTransactions() {
+    const query = this.transactionRepository.createQueryBuilder('transaction');
+
+    try {
+      return await query.delete().where({}).execute();
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 }
