@@ -1,27 +1,31 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
-import { error } from 'console';
 import { PaginationDto } from 'src/shared/dtos/pagination.dto';
 
 @Injectable()
 export class WalletsService {
-
   private readonly logger = new Logger(WalletsService.name);
-  
+
   constructor(
     @InjectRepository(Wallet)
-    private readonly walletRepository : Repository<Wallet>,
+    private readonly walletRepository: Repository<Wallet>,
   ) {}
 
   async create(createWalletDto: CreateWalletDto) {
     try {
       const wallet = this.walletRepository.create(createWalletDto);
       return await this.walletRepository.save(wallet);
-      
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -37,10 +41,9 @@ export class WalletsService {
   }
 
   async findOne(id: string) {
-    const wallet = await this.walletRepository.findOneBy({id});
+    const wallet = await this.walletRepository.findOneBy({ id });
 
-    if(!wallet)
-    {
+    if (!wallet) {
       throw new NotFoundException(`Wallet with id ${id} not found`);
     }
 
@@ -53,15 +56,13 @@ export class WalletsService {
       ...updateWalletDto,
     });
 
-    if(!wallet)
-    {
+    if (!wallet) {
       throw new NotFoundException(`Wallet with id ${id} not found`);
     }
 
     try {
       await this.walletRepository.save(wallet);
       return wallet;
-
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -73,12 +74,14 @@ export class WalletsService {
     await this.walletRepository.remove(wallet);
   }
 
-  private handleDBExceptions( error: any ){
-     if(error.code === "23505") {
-        throw new BadRequestException(error.detail);
-      }
-      
-      this.logger.error(error);
-      throw new InternalServerErrorException('Unexpected error, check server logs');
+  private handleDBExceptions(error: any) {
+    if (error.code === '23505') {
+      throw new BadRequestException(error.detail);
+    }
+
+    this.logger.error(error);
+    throw new InternalServerErrorException(
+      'Unexpected error, check server logs',
+    );
   }
 }

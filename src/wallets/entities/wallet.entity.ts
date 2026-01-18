@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
-import { CurrencyType, WalletType } from '../../shared/enums';
 import { Audit } from "src/shared/entities/audit.entity";
+import { WalletType } from "../enums/wallet-type.enum";
+import { CurrencyType } from "src/shared/enums/currency-type.enum";
 
 @Entity('wallets')
 @Unique(['name', 'currency'])

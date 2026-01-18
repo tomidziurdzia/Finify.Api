@@ -1,5 +1,6 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
-import { CurrencyType, WalletType } from 'src/shared/enums';
+import { WalletType } from '../enums/wallet-type.enum';
+import { CurrencyType } from 'src/shared/enums/currency-type.enum';
 
 export class CreateWalletDto {
     @IsString()
