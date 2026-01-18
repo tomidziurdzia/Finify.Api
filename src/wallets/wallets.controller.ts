@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { WalletsService } from './wallets.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
@@ -18,17 +18,17 @@ export class WalletsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.walletsService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.walletsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWalletDto: UpdateWalletDto) {
-    return this.walletsService.update(+id, updateWalletDto);
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateWalletDto: UpdateWalletDto) {
+    return this.walletsService.update(id, updateWalletDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.walletsService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.walletsService.remove(id);
   }
 }

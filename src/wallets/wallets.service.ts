@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -27,19 +27,28 @@ export class WalletsService {
   }
 
   findAll() {
-    return `This action returns all wallets`;
+    return this.walletRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} wallet`;
+  async findOne(id: string) {
+    const wallet = await this.walletRepository.findOneBy({id});
+
+    if(!wallet)
+    {
+      throw new NotFoundException(`Wallet with id ${id} not found`);
+    }
+
+    return wallet;
   }
 
-  update(id: number, updateWalletDto: UpdateWalletDto) {
+  update(id: string, updateWalletDto: UpdateWalletDto) {
     return `This action updates a #${id} wallet`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} wallet`;
+  async remove(id: string) {
+    const wallet = await this.findOne(id);
+
+    await this.walletRepository.remove(wallet);
   }
 
   private handleDBExceptions( error: any ){
