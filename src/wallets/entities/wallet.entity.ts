@@ -1,15 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { CurrencyType, WalletType } from '../../shared/enums';
 import { Audit } from "src/shared/entities/audit.entity";
 
 @Entity('wallets')
+@Unique(['name', 'currency'])
 export class Wallet extends Audit {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column('text', {
-        unique: true,
-    })
+    @Column('text')
     name: string;
 
     @Column({
