@@ -13,17 +13,17 @@ export abstract class Audit {
     })
     updatedAt: Date;
 
-    @Column('uuid', {
+    @Column('varchar', {
         name: 'created_by',
-        nullable: true,
+        default: 'system',
     })
-    createdBy?: string;
+    createdBy: string;
 
-    @Column('uuid', {
+    @Column('varchar', {
         name: 'updated_by',
-        nullable: true,
+        default: 'system',
     })
-    updatedBy?: string;
+    updatedBy: string;
 
     @Column('boolean', {
         default: true,

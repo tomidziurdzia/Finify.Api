@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +14,14 @@ export class WalletsService {
   ) {}
 
   async create(createWalletDto: CreateWalletDto) {
-    return 'This action adds a new wallet';
+    try {
+      const wallet = this.walletRepository.create(createWalletDto);
+      return await this.walletRepository.save(wallet);
+      
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Failed to create wallet');
+    }
   }
 
   findAll() {
